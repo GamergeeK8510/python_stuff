@@ -5,7 +5,7 @@ player2 = ""
 z = 1
 
 
-def find(n_list):
+def find(n_list):  # Function for ending the game if someone wins, or the board fills up.
     h = 15
     while h > -1:
         if n_list[h] is True:
@@ -14,12 +14,13 @@ def find(n_list):
     return 16
 
 
-def check_board(x):
+def check_board(x):  # This checks the board each turn for a winning game state.
+
     y = [0, 1, 2]
     m = 2
     truth_table = []
 
-    while m > 0:
+    while m > 0:  # Generates a truth table for each possible win.
 
         n = 2
 
@@ -36,11 +37,11 @@ def check_board(x):
         truth_table.append(win4)
         m -= 1
 
-    if find(truth_table) in [0, 1, 2, 3, 4, 5, 6, 7]:
+    if find(truth_table) in [0, 1, 2, 3, 4, 5, 6, 7]:  # If any of the first half are true, player 2 wins.
         print("\nPlayer 2 wins!")
         return 1
 
-    elif find(truth_table) in [8, 9, 10, 11, 12, 13, 14, 15]:
+    elif find(truth_table) in [8, 9, 10, 11, 12, 13, 14, 15]:  # And vice versa.
         print("\nPlayer 1 wins!")
         return 1
 
@@ -60,8 +61,9 @@ def check_board(x):
         return 0
 
 
-def cpu_move():
+def cpu_move():  # This is my Tic Tac Toe 'AI'
 
+    b = 0
     x = 0
     y = [0, 1, 2]
     player_one = [[1, 1, 0], [1, 0, 1], [0, 1, 1]]
@@ -76,47 +78,49 @@ def cpu_move():
     move_corner = [8]
     move_side = [8]
 
-    for i in y:
+    while b < 2 and x == 0:  # Checks game board states for a win, prioritizing victory.
 
-        check_row = []
-        check_col = []
-        check_dia_one = []
-        check_dia_two = []
+        for i in y:
 
-        for n in y:
+            check_row = []
+            check_col = []
+            check_dia_one = []
+            check_dia_two = []
 
-            row = game_board[i][n]
-            col = game_board[n][i]
-            dia_one = game_board[n][n]
-            dia_two = game_board[2-n][n]
+            for n in y:  # Algorithm for checking each game state
 
-            check_row.append(row)
-            check_col.append(col)
-            check_dia_one.append(dia_one)
-            check_dia_two.append(dia_two)
+                row = game_board[i][n]
+                col = game_board[n][i]
+                dia_one = game_board[n][n]
+                dia_two = game_board[2-n][n]
 
-        f = [0, 1]
-        players = player_one, player_two
-        all_moves = move_row, move_col, move_dia_one, move_dia_two
-        check_all = check_row, check_col, check_dia_one, check_dia_two
+                check_row.append(row)
+                check_col.append(col)
+                check_dia_one.append(dia_one)
+                check_dia_two.append(dia_two)
 
-        if x == 0:
+            players = player_two, player_one
+            all_moves = move_row, move_col, move_dia_one, move_dia_two
+            check_all = check_row, check_col, check_dia_one, check_dia_two
 
-            for b in f:
+            if x == 0:
+
                 w = 0
 
-                while w < 4:
+                while w < 4 and x == 0:
 
-                    if check_all[w] in players[b]:
+                    if check_all[w] in players[b]:  # Records which column results in a win for a player if any
 
                         all_moves[w].append(i)
                         x += 1
 
                     w += 1
 
+        b += 1
+
     if x == 0:
 
-        if game_board[1][1] == 0:
+        if game_board[1][1] == 0:  # Records if the center space is empty assuming no player can win in one move
 
             move_center.append(1)
             x += 1
@@ -126,30 +130,34 @@ def cpu_move():
         w = 0
         loop = [0, 0, 2, 2, 0]
 
-        while w < 4:
+        while w < 4 and x == 0:
 
-            if game_board[loop[w]][loop[w + 1]] == 0:
+            if game_board[loop[w]][loop[w + 1]] == 0:  # Checks corners next; starting top left => bottom right.
 
                 move_corner.append(w)
-                w += 1
                 x += 1
+
+            w += 1
 
     if x == 0:
 
         w = 0
         loop = [0, 1, 2, 1, 0]
 
-        while w < 4:
+        while w < 4 and x == 0:
 
-            if game_board[loop[w]][loop[w + 1]] == 0:
+            if game_board[loop[w]][loop[w + 1]] == 0:  # Checks side spaces last.
 
                 move_side.append(w)
-                w += 1
                 x += 1
+
+            w += 1
+
+#   Whichever state the board is in, the row or column is sent to another variable.
 
     move_table = move_row + move_col + move_dia_one + move_dia_two + move_center + move_corner + move_side
 
-    if move_table[1] != 8:
+    if move_table[1] != 8:  # If a row was selected, finds the column of the needed row and returns the move.
 
         y = [0, 1, 2]
 
@@ -160,7 +168,7 @@ def cpu_move():
                 find_col = game_board[i].index(0) + 1
                 return "{}, {}".format(i + 1, find_col)
 
-    elif move_table[2] != 8:
+    elif move_table[2] != 8:  # If a column was selected finds the row of the needed column and returns the move.
 
         y = [0, 1, 2]
         temp_rows = [[game_board[0][0], game_board[1][0], game_board[2][0]],
@@ -174,13 +182,13 @@ def cpu_move():
                 find_row = temp_rows[i].index(0) + 1
                 return "{}, {}".format(find_row, i + 1)
 
-    elif move_table[3] != 8:
+    elif move_table[3] != 8:  # If a diagonal was selected, returns the empty space.
 
         temp_dia = [game_board[0][0], game_board[1][1], game_board[2][2]]
         find_move = temp_dia.index(0) + 1
         return "{}, {}".format(find_move, find_move)
 
-    elif move_table[4] != 8:
+    elif move_table[4] != 8:  # If the opposite diagonal was selected, returns the empty space.
 
         y = [0, 1, 2]
         temp_dia = [game_board[2][0], game_board[1][1], game_board[0][2]]
@@ -191,47 +199,45 @@ def cpu_move():
 
                 return "{}, {}".format(3 - i, 1 + i)
 
-    elif move_table[5] != 8:
+    elif move_table[5] != 8:  # Returns the center space if it is open and no one can win in one turn.
 
         return "2, 2"
 
-    elif move_table[6] != 8:
+    elif move_table[6] != 8:  # Returns a corner if open in order from top left to bottom right.
 
-        w = 0
+        y = [0, 1, 2, 3]
         loop = [1, 1, 1, 3, 3, 1, 3, 3]
 
-        while w < 4:
+        for i in y:
 
-            if move_table[6] == w:
+            if move_table[6] == i:
 
-                w += 1
-                return "{}, {}".format(loop[2 * w], loop[2 * w + 1])
+                return "{}, {}".format(loop[2 * i], loop[2 * i + 1])
 
-    elif move_table[7] != 8:
+    elif move_table[7] != 8:  # Finally, if no other cond were met, returns side; starting top, rotating clockwise.
 
-        w = 0
+        y = [0, 1, 2, 3]
         loop = [1, 2, 3, 2, 2, 3, 2, 1]
 
-        while w < 4:
+        for i in y:
 
-            if move_table[7] == w:
+            if move_table[7] == i:
 
-                w += 1
-                return "{}, {}".format(loop[2 * w], loop[2 * w + 1])
+                return "{}, {}".format(loop[2 * i], loop[2 * i + 1])
 
 
-def player_move(a, b, player):
+def player_move(a, b, player):  # This is for handling player responses.
     if a in ["1", "2", "3"] and b in ["1", "2", "3"]:
 
         x = int(a)
         y = int(b)
 
-        if game_board[(x - 1)][(y - 1)] != 0:
+        if game_board[(x - 1)][(y - 1)] != 0:  # Condition for an entry that is already filled.
 
             print("\nThat space is already filled!")
             return 1
 
-        game_board[(x - 1)].insert((y - 1), player)
+        game_board[(x - 1)].insert((y - 1), player)  # This generates a new board after a move.
         game_board[(x - 1)].pop(y)
 
         print("")
@@ -241,21 +247,21 @@ def player_move(a, b, player):
 
         return 0
 
-    elif player1 == "quit      " or player2 == "quit      ":
+    elif player1 == "quit      " or player2 == "quit      ":  # Allows either player to quit.
 
         return 2
 
-    elif player2 == "reset      " or player2 == "reset      ":
+    elif player2 == "reset      " or player2 == "reset      ":  # Allows either player to reset the board.
 
         return 2
 
-    elif player1 != '' or player2 != '':
+    elif player1 != '' or player2 != '':  # In case someone enters something other then a move:
 
         print("\nPlease enter ROW [1, 2, 3], COL [1, 2, 3]")
         return 1
 
 
-while z == 1:
+while z == 1:  # Loop for alternating player turns.
 
     u = 1
     game_board = [[0, 0, 0],
